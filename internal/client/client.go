@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
+
+	"helm.sh/helm/pkg/repo"
 )
 
 var ErrPurgeConflict = errors.New("client: purge only can be executed with empty charts list")
@@ -51,15 +53,29 @@ type MuseumClient struct {
 	isPurge bool
 }
 
-func (mc MuseumClient) ensureIndex(ctx context.Context, chart *Chart) error {
-	if chart == nil {
-		return nil
+func (mc MuseumClient) Get(ctx context.Context, name string) ([]*Chart, error) {
+	var cs []*Chart
+
+	f, err := mc.get(ctx)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+
+	for _, e := range f.Entries {
+		if len(e) == 0 {
+			continue
+		}
+		if e[0].Name != name {
+			continue
+		}
+		for _, c := range e {
+			cs = append(cs, NewChart(c.Name, c.Version))
+		}
+	}
+	return cs, nil
 }
 
-func (mc MuseumClient) Get() {}
-func (mc MuseumClient) GetAll(ctx context.Context) ([]*Chart, error) {
+func (mc MuseumClient) get(ctx context.Context) (*repo.IndexFile, error) {
 
 	u, err := url.Parse(fmt.Sprintf("%s/index.yaml", mc.host))
 	if err != nil {
@@ -87,7 +103,17 @@ func (mc MuseumClient) GetAll(ctx context.Context) ([]*Chart, error) {
 		return nil, err
 	}
 
+	return f, nil
+}
+
+func (mc MuseumClient) GetAll(ctx context.Context) ([]*Chart, error) {
+
 	var cs []*Chart
+
+	f, err := mc.get(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, e := range f.Entries {
 		for _, c := range e {
