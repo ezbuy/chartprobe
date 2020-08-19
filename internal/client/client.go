@@ -51,6 +51,8 @@ type MuseumClient struct {
 
 	// isPurge represents whether purge the `whole` tenant museum charts
 	isPurge bool
+	// specifiedVersion defines if we should operate the specified version
+	specifiedVersion string
 }
 
 func (mc MuseumClient) Get(ctx context.Context, name string) ([]*Chart, error) {
@@ -132,6 +134,15 @@ func WithPurgeOption() DeleteOption {
 	}
 }
 
+// WithSpecifiedChartVersion set the specified chart version for the all chart operation
+// e.g.: You can use it to fetch all charts matched with this provided version or delete them
+func WithSpecifiedChartVersion(version string) DeleteOption {
+	return func(c MuseumClient) MuseumClient {
+		c.specifiedVersion = version
+		return c
+	}
+}
+
 func (mc MuseumClient) resolveAPIURL() (string, error) {
 	u, err := url.Parse(mc.host)
 	if err != nil {
@@ -164,7 +175,11 @@ func (mc MuseumClient) Del(ctx context.Context, charts []*Chart, opts ...DeleteO
 		return 0, err
 	}
 	for _, chart := range charts {
-		u, err := url.Parse(fmt.Sprintf("%s/%s/%s", api, chart.Name, chart.Version))
+		version := chart.Version
+		if mc.specifiedVersion != "" {
+			version = mc.specifiedVersion
+		}
+		u, err := url.Parse(fmt.Sprintf("%s/%s/%s", api, chart.Name, version))
 		if err != nil {
 			return 0, err
 		}
