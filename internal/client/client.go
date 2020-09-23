@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 
@@ -53,6 +54,8 @@ type MuseumClient struct {
 	isPurge bool
 	// specifiedVersion defines if we should operate the specified version
 	specifiedVersion string
+	// operation chart prefix
+	prefix string
 }
 
 func (mc MuseumClient) Get(ctx context.Context, name string) ([]*Chart, error) {
@@ -134,6 +137,13 @@ func WithPurgeOption() DeleteOption {
 	}
 }
 
+func WithPrefix(prefix string) DeleteOption {
+	return func(c MuseumClient) MuseumClient {
+		c.prefix = prefix
+		return c
+	}
+}
+
 // WithSpecifiedChartVersion set the specified chart version for the all chart operation
 // e.g.: You can use it to fetch all charts matched with this provided version or delete them
 func WithSpecifiedChartVersion(version string) DeleteOption {
@@ -175,6 +185,9 @@ func (mc MuseumClient) Del(ctx context.Context, charts []*Chart, opts ...DeleteO
 		return 0, err
 	}
 	for _, chart := range charts {
+		if mc.prefix != "" && !strings.HasPrefix(chart.Name, mc.prefix) {
+			continue
+		}
 		version := chart.Version
 		if mc.specifiedVersion != "" {
 			version = mc.specifiedVersion

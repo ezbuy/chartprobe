@@ -24,6 +24,7 @@ import (
 
 var isDeleteAll bool
 var version string
+var prefix string
 
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
@@ -59,4 +60,5 @@ func init() {
 
 	deleteCmd.PersistentFlags().BoolVarP(&isDeleteAll, "all", "a", false, "Delete All Charts")
 	deleteCmd.PersistentFlags().StringVar(&version, "chart_version", "", "Specified Chart Version")
+	deleteCmd.PersistentFlags().StringVar(&prefix, "prefix", "", "Chart prefix")
 }
