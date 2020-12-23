@@ -172,7 +172,7 @@ func (mc MuseumClient) Del(ctx context.Context, charts []*Chart, opts ...DeleteO
 		return 0, ErrPurgeConflict
 	}
 
-	if mc.isPurge && len(charts) == 0 {
+	if len(charts) == 0 {
 		cs, err := mc.GetAll(ctx)
 		if err != nil {
 			return 0, err
@@ -209,5 +209,5 @@ func (mc MuseumClient) Del(ctx context.Context, charts []*Chart, opts ...DeleteO
 		log.Printf("DELETING CHART: %s:%s,STATUS: %d", chart.Name, chart.Version, resp.StatusCode)
 		delCount++
 	}
-	return len(charts), nil
+	return delCount, nil
 }

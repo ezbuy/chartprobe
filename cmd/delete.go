@@ -47,6 +47,9 @@ var deleteCmd = &cobra.Command{
 		if isDeleteAll {
 			opts = append(opts, client.WithPurgeOption())
 		}
+		if prefix != "" {
+			opts = append(opts, client.WithPrefix(prefix))
+		}
 		dc, err := c.Del(context.Background(), charts, opts...)
 		if err != nil {
 			log.Fatalf("delete: %q", err)
