@@ -3,19 +3,24 @@ package client
 import (
 	"errors"
 	"strings"
+	"time"
+
+	"helm.sh/helm/pkg/repo"
 )
 
 type Chart struct {
-	Name    string `json:"name"`
-	Version string `json:"version"`
+	Name    string    `json:"name"`
+	Version string    `json:"version"`
+	Created time.Time `json:"created"`
 }
 
 var ErrInvalidChartFormation = errors.New("chart: invalid formation")
 
-func NewChart(cname string, version string) *Chart {
+func NewChart(c *repo.ChartVersion) *Chart {
 	return &Chart{
-		Name:    cname,
-		Version: version,
+		Name:    c.Name,
+		Version: c.Version,
+		Created: c.Created,
 	}
 }
 

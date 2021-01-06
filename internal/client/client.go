@@ -56,6 +56,8 @@ type MuseumClient struct {
 	specifiedVersion string
 	// operation chart prefix
 	prefix string
+	// period represents the existing chart period
+	period time.Duration
 }
 
 func (mc MuseumClient) Get(ctx context.Context, name string) ([]*Chart, error) {
@@ -74,7 +76,7 @@ func (mc MuseumClient) Get(ctx context.Context, name string) ([]*Chart, error) {
 			continue
 		}
 		for _, c := range e {
-			cs = append(cs, NewChart(c.Name, c.Version))
+			cs = append(cs, NewChart(c))
 		}
 	}
 	return cs, nil
@@ -122,7 +124,7 @@ func (mc MuseumClient) GetAll(ctx context.Context) ([]*Chart, error) {
 
 	for _, e := range f.Entries {
 		for _, c := range e {
-			cs = append(cs, NewChart(c.Name, c.Version))
+			cs = append(cs, NewChart(c))
 		}
 	}
 	return cs, nil
@@ -141,6 +143,13 @@ func WithPrefix(prefix string) DeleteOption {
 	return func(c MuseumClient) MuseumClient {
 		c.prefix = prefix
 		return c
+	}
+}
+
+func WithPeriod(period time.Duration) DeleteOption {
+	return func(mc MuseumClient) MuseumClient {
+		mc.period = period
+		return mc
 	}
 }
 
@@ -191,6 +200,9 @@ func (mc MuseumClient) Del(ctx context.Context, charts []*Chart, opts ...DeleteO
 		version := chart.Version
 		if mc.specifiedVersion != "" {
 			version = mc.specifiedVersion
+		}
+		if mc.period > 0 && chart.Created.Unix() > time.Now().Add(mc.period).Unix() {
+			continue
 		}
 		u, err := url.Parse(fmt.Sprintf("%s/%s/%s", api, chart.Name, version))
 		if err != nil {

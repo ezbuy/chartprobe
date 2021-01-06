@@ -17,6 +17,7 @@ package cmd
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/ezbuy/chartprobe/internal/client"
 	"github.com/spf13/cobra"
@@ -25,6 +26,7 @@ import (
 var isDeleteAll bool
 var version string
 var prefix string
+var period string
 
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
@@ -50,6 +52,16 @@ var deleteCmd = &cobra.Command{
 		if prefix != "" {
 			opts = append(opts, client.WithPrefix(prefix))
 		}
+		if period != "" {
+			if period[0] != '-' {
+				log.Fatalf("period must start with '-'")
+			}
+			du, err := time.ParseDuration(period)
+			if err != nil {
+				log.Fatalf("delete: parse period: %q", err)
+			}
+			opts = append(opts, client.WithPeriod(du))
+		}
 		dc, err := c.Del(context.Background(), charts, opts...)
 		if err != nil {
 			log.Fatalf("delete: %q", err)
@@ -64,4 +76,5 @@ func init() {
 	deleteCmd.PersistentFlags().BoolVarP(&isDeleteAll, "all", "a", false, "Delete All Charts")
 	deleteCmd.PersistentFlags().StringVar(&version, "chart_version", "", "Specified Chart Version")
 	deleteCmd.PersistentFlags().StringVar(&prefix, "prefix", "", "Chart prefix")
+	deleteCmd.PersistentFlags().StringVar(&period, "period", "", "period defines the purge period based on the chart create date, and the value should follow Go's time.ParseDuration(https://golang.org/pkg/time/#ParseDuration)")
 }
