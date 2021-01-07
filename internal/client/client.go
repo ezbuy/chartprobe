@@ -171,7 +171,10 @@ func (mc MuseumClient) resolveAPIURL() (string, error) {
 	return u.String(), nil
 }
 
-func (mc MuseumClient) Del(ctx context.Context, charts []*Chart, opts ...DeleteOption) (int, error) {
+func (mc MuseumClient) Del(ctx context.Context,
+	charts []*Chart,
+	opts ...DeleteOption,
+) (int, error) {
 
 	for _, opt := range opts {
 		mc = opt(mc)
@@ -201,7 +204,7 @@ func (mc MuseumClient) Del(ctx context.Context, charts []*Chart, opts ...DeleteO
 		if mc.specifiedVersion != "" {
 			version = mc.specifiedVersion
 		}
-		if mc.period > 0 && chart.Created.Unix() > time.Now().Add(mc.period).Unix() {
+		if mc.period != 0 && chart.Created.Unix() > time.Now().Add(mc.period).Unix() {
 			continue
 		}
 		u, err := url.Parse(fmt.Sprintf("%s/%s/%s", api, chart.Name, version))
@@ -218,7 +221,7 @@ func (mc MuseumClient) Del(ctx context.Context, charts []*Chart, opts ...DeleteO
 			continue
 		}
 		defer resp.Body.Close()
-		log.Printf("DELETING CHART: %s:%s,STATUS: %d", chart.Name, chart.Version, resp.StatusCode)
+		log.Printf("DELETING CHART: %s:%s,Created: %s,STATUS: %d", chart.Name, chart.Version, chart.Created.String(), resp.StatusCode)
 		delCount++
 	}
 	return delCount, nil
