@@ -1,4 +1,4 @@
-FROM golang:1.16 AS Builder
+FROM golang:1.16 AS BUILDER
 
 WORKDIR /go/src/github.com/ezbuy/chartprobe
 COPY . .
@@ -9,4 +9,4 @@ FROM alpine:latest
 
 WORKDIR /app/chartprobe
 
-COPY --from=GOBUILDER /go/src/github.com/ezbuy/chartprobe/chartprobe /app/chartprobe/chartprobe
+COPY --from=BUILDER /go/src/github.com/ezbuy/chartprobe/chartprobe /app/chartprobe/chartprobe
