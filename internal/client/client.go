@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -22,12 +23,27 @@ var ErrPurgeConflict = errors.New("client: purge only can be executed with empty
 var ClientOnce sync.Once
 var defaultClient MuseumClient
 
+func envOrYAML(field string) (string, error) {
+	value := os.Getenv(field)
+	if value == "" {
+		var ok bool
+		value, ok = viper.Get(field).(string)
+		if !ok {
+			return "", fmt.Errorf("conf: field[%s] not found", field)
+		}
+	}
+	if value == "" {
+		return "", fmt.Errorf("conf: field[%s] not found", field)
+	}
+	return value, nil
+}
+
 func NewClient() MuseumClient {
 	ClientOnce.Do(func() {
 		// TODO: multi-tenant
-		host, ok := viper.Get("host").(string)
-		if !ok {
-			panic("client init: bad host")
+		host, err := envOrYAML("host")
+		if err != nil {
+			panic(err)
 		}
 		timeoutSecond, ok := viper.Get("timeout").(int)
 		if !ok {
