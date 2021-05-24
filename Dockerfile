@@ -1,4 +1,4 @@
-FROM go1.16 AS Builder
+FROM golang:1.16 AS Builder
 
 WORKDIR /go/src/github.com/ezbuy/chartprobe
 COPY . .
