@@ -1,17 +1,37 @@
+// Copyright © 2020 NAME HERE ezbuy & LITB TEAM
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package client
 
 import (
 	"context"
+	"sort"
 
 	"helm.sh/helm/pkg/repo"
+
 	"sigs.k8s.io/yaml"
 )
 
 func hackLoadIndex(_ context.Context, index []byte) (*repo.IndexFile, error) {
-	i := &repo.IndexFile{}
-	if err := yaml.Unmarshal(index, i); err != nil {
-		return i, err
+	iFile := &repo.IndexFile{}
+	if err := yaml.Unmarshal(index, iFile); err != nil {
+		return iFile, err
 	}
-	i.SortEntries()
-	return i, nil
+	for key := range iFile.Entries {
+		sort.Slice(iFile.Entries[key], func(i, j int) bool {
+			return iFile.Entries[key][i].Created.Unix() > iFile.Entries[key][j].Created.Unix()
+		})
+	}
+	return iFile, nil
 }

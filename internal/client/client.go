@@ -1,3 +1,17 @@
+// Copyright © 2020 NAME HERE ezbuy & LITB TEAM
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package client
 
 import (
@@ -74,6 +88,8 @@ type MuseumClient struct {
 	prefix string
 	// period represents the existing chart period
 	period time.Duration
+	// perChartVersion represents the max version per chart has
+	perChartVersion uint32
 }
 
 func (mc MuseumClient) Get(ctx context.Context, name string) ([]*Chart, error) {
@@ -169,6 +185,13 @@ func WithPeriod(period time.Duration) DeleteOption {
 	}
 }
 
+func WithPerChartVersion(count uint32) DeleteOption {
+	return func(mc MuseumClient) MuseumClient {
+		mc.perChartVersion = count
+		return mc
+	}
+}
+
 // WithSpecifiedChartVersion set the specified chart version for the all chart operation
 // e.g.: You can use it to fetch all charts matched with this provided version or delete them
 func WithSpecifiedChartVersion(version string) DeleteOption {
@@ -212,7 +235,7 @@ func (mc MuseumClient) Del(ctx context.Context,
 	if err != nil {
 		return 0, err
 	}
-	for _, chart := range charts {
+	for index, chart := range charts {
 		if mc.prefix != "" && !strings.HasPrefix(chart.Name, mc.prefix) {
 			continue
 		}
@@ -221,6 +244,9 @@ func (mc MuseumClient) Del(ctx context.Context,
 			version = mc.specifiedVersion
 		}
 		if mc.period != 0 && chart.Created.Unix() > time.Now().Add(mc.period).Unix() {
+			continue
+		}
+		if mc.perChartVersion > 0 && index+1 <= int(mc.perChartVersion) {
 			continue
 		}
 		u, err := url.Parse(fmt.Sprintf("%s/%s/%s", api, chart.Name, version))

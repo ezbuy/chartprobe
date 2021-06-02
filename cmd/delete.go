@@ -27,6 +27,7 @@ var isDeleteAll bool
 var version string
 var prefix string
 var period string
+var perChartMaxVersion uint32
 
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
@@ -62,6 +63,9 @@ var deleteCmd = &cobra.Command{
 			}
 			opts = append(opts, client.WithPeriod(du))
 		}
+		if perChartMaxVersion > 0 {
+			opts = append(opts, client.WithPerChartVersion(perChartMaxVersion))
+		}
 		dc, err := c.Del(context.Background(), charts, opts...)
 		if err != nil {
 			log.Fatalf("delete: %q", err)
@@ -77,4 +81,5 @@ func init() {
 	deleteCmd.PersistentFlags().StringVar(&version, "chart_version", "", "Specified Chart Version")
 	deleteCmd.PersistentFlags().StringVar(&prefix, "prefix", "", "Chart prefix")
 	deleteCmd.PersistentFlags().StringVar(&period, "period", "", "period defines the purge period based on the chart create date, and the value should follow Go's time.ParseDuration(https://golang.org/pkg/time/#ParseDuration)")
+	deleteCmd.PersistentFlags().Uint32Var(&perChartMaxVersion, "per-chart-versions", 0, "per-chart-versions defines the max version existed per chart")
 }
