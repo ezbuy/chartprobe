@@ -21,6 +21,7 @@ import (
 
 	"github.com/ezbuy/chartprobe/internal/client"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var isDeleteAll bool
@@ -75,11 +76,13 @@ var deleteCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(deleteCmd)
+	MustSetEnv()
 
-	deleteCmd.PersistentFlags().BoolVarP(&isDeleteAll, "all", "a", false, "Delete All Charts")
-	deleteCmd.PersistentFlags().StringVar(&version, "chart_version", "", "Specified Chart Version")
-	deleteCmd.PersistentFlags().StringVar(&prefix, "prefix", "", "Chart prefix")
-	deleteCmd.PersistentFlags().StringVar(&period, "period", "", "period defines the purge period based on the chart create date, and the value should follow Go's time.ParseDuration(https://golang.org/pkg/time/#ParseDuration)")
-	deleteCmd.PersistentFlags().Uint32Var(&perChartMaxVersion, "per-chart-versions", 0, "per-chart-versions defines the max version existed per chart")
+	RootCmd.AddCommand(deleteCmd)
+	deleteCmd.PersistentFlags().BoolVarP(&isDeleteAll, "all", "a", viper.GetBool("all"), "Delete All Charts")
+	deleteCmd.PersistentFlags().StringVar(&version, "chart_version", viper.GetString("chart_version"), "Specified Chart Version")
+	deleteCmd.PersistentFlags().StringVar(&prefix, "prefix", viper.GetString("prefix"), "Chart prefix")
+	deleteCmd.PersistentFlags().StringVar(&period, "period", viper.GetString("period"), "period defines the purge period based on the chart create date, and the value should follow Go's time.ParseDuration(https://golang.org/pkg/time/#ParseDuration)")
+	deleteCmd.PersistentFlags().Uint32Var(&perChartMaxVersion, "per-chart-versions", uint32(viper.GetInt("per-chart-versions")), "per-chart-versions defines the max version existed per chart")
+
 }

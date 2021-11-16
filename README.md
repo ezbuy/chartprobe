@@ -5,13 +5,13 @@
 
 Chartprobe is a command-line app for [chartmuseum](github.com/helm/chartmuseum),which provides some common request templates .
 
-### Using Config File 
+### Using Config File
 
-```shell 
+```shell
 ~ > cat museum.yaml
 
 # specify your host
-host: http://YOUR_CHARTMUSEUM_HOST/YOUR_REPO
+chartprobe_host: http://YOUR_CHARTMUSEUM_HOST/YOUR_REPO
 
 ```
 
@@ -29,7 +29,7 @@ host: http://YOUR_CHARTMUSEUM_HOST/YOUR_REPO
 
 ### Using as a Docker Container to swipe museum
 
-```shell 
+```shell
 ~ > docker pull ghcr.io/ezbuy/chartprobe:latest
-~ > docker run  -name chartprobe -e host="your_museum_host" ghcr.io/ezbuy/chartprobe:latest delete -a
+~ > docker run  -name chartprobe -e chartprobe_host="your_museum_host" ghcr.io/ezbuy/chartprobe:latest delete -a
 ```

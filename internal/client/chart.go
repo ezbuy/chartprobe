@@ -19,7 +19,7 @@ import (
 	"strings"
 	"time"
 
-	"helm.sh/helm/pkg/repo"
+	"helm.sh/helm/v3/pkg/repo"
 )
 
 type Chart struct {

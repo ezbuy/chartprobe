@@ -22,6 +22,7 @@ import (
 
 	"github.com/ezbuy/chartprobe/internal/client"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var isGetAll bool
@@ -30,7 +31,7 @@ var isGetAll bool
 var getCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get Charts from museum",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		c := client.NewClient()
 		cs, err := c.GetAll(context.Background())
 		if err != nil {
@@ -46,7 +47,8 @@ var getCmd = &cobra.Command{
 }
 
 func init() {
+	MustSetEnv()
 	RootCmd.AddCommand(getCmd)
 
-	getCmd.Flags().BoolVarP(&isGetAll, "all", "a", false, "get all charts")
+	getCmd.Flags().BoolVarP(&isGetAll, "all", "a", viper.GetBool("all"), "get all charts")
 }

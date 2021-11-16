@@ -18,7 +18,7 @@ import (
 	"context"
 	"sort"
 
-	"helm.sh/helm/pkg/repo"
+	"helm.sh/helm/v3/pkg/repo"
 
 	"sigs.k8s.io/yaml"
 )

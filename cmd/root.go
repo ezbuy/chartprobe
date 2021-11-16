@@ -44,7 +44,17 @@ func Execute() {
 	}
 }
 
+func MustSetEnv() {
+	viper.SetEnvPrefix("CHARTPROBE")
+	// bind flagsets
+	viper.AutomaticEnv()
+	// bind others
+	viper.BindEnv("HOST")
+	viper.BindEnv("TIMEOUT")
+}
+
 func init() {
+	MustSetEnv()
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.chartprobe.yaml)")
@@ -55,7 +65,7 @@ func initConfig() {
 	if cfgFile != "" { // enable ability to specify config file via flag
 		viper.SetConfigFile(cfgFile)
 	}
-
+	// env is `chartprobe_host`
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())

@@ -29,7 +29,7 @@ import (
 
 	"github.com/spf13/viper"
 
-	"helm.sh/helm/pkg/repo"
+	"helm.sh/helm/v3/pkg/repo"
 )
 
 var ErrPurgeConflict = errors.New("client: purge only can be executed with empty charts list")
@@ -54,12 +54,11 @@ func envOrYAML(field string) (string, error) {
 
 func NewClient() MuseumClient {
 	ClientOnce.Do(func() {
-		// TODO: multi-tenant
-		host, err := envOrYAML("host")
-		if err != nil {
-			panic(err)
+		host, ok := viper.Get("HOST").(string)
+		if !ok {
+			panic("CHARTPROBE_HOST not set")
 		}
-		timeoutSecond, ok := viper.Get("timeout").(int)
+		timeoutSecond, ok := viper.Get("TIMEOUT").(int)
 		if !ok {
 			timeoutSecond = 10
 		}
