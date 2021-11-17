@@ -11,7 +11,7 @@ Chartprobe is a command-line app for [chartmuseum](github.com/helm/chartmuseum),
 ~ > cat museum.yaml
 
 # specify your host
-chartprobe_host: http://YOUR_CHARTMUSEUM_HOST/YOUR_REPO
+CHARTPROBE_HOST: http://YOUR_CHARTMUSEUM_HOST/YOUR_REPO
 
 ```
 
@@ -31,5 +31,5 @@ chartprobe_host: http://YOUR_CHARTMUSEUM_HOST/YOUR_REPO
 
 ```shell
 ~ > docker pull ghcr.io/ezbuy/chartprobe:latest
-~ > docker run  -name chartprobe -e chartprobe_host="your_museum_host" ghcr.io/ezbuy/chartprobe:latest delete -a
+~ > docker run  -name chartprobe -e CHARTPROBE_HOST="your_museum_host" -e CHARTPROBE_PERIOD="-168h" ghcr.io/ezbuy/chartprobe:latest delete -a
 ```
