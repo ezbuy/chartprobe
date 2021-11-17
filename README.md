@@ -33,3 +33,11 @@ CHARTPROBE_HOST: http://YOUR_CHARTMUSEUM_HOST/YOUR_REPO
 ~ > docker pull ghcr.io/ezbuy/chartprobe:latest
 ~ > docker run  -name chartprobe -e CHARTPROBE_HOST="your_museum_host" -e CHARTPROBE_PERIOD="-168h" ghcr.io/ezbuy/chartprobe:latest delete -a
 ```
+
+### Run as Kubernetes CronJob
+
+```shell
+# replace cronjob.yaml's TODO with yourself configration 
+#
+~ > kubectl apply -f cronjob.yaml -n YOUR_NAMESPACE
+```

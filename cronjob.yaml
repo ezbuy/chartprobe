@@ -1,0 +1,82 @@
+# here is a kubernetes cronjob
+kind: CronJob
+apiVersion: batch/v1beta1
+metadata:
+  name: chartmuseum-cleaner
+  # TODO
+  namespace: YOUR_NAMESPACE
+  labels:
+    app: ezbuy_chartprobe
+spec:
+# schedule 18:30pm every day
+# TODO set yourself cronjob format here
+  schedule: "30 18 * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: ezbuy-chartprobe
+        spec:
+          containers:
+          - name: chartprobe-for-dev
+            image: ghcr.io/ezbuy/chartprobe:latest
+            command:
+            - /app/chartprobe/chartprobe
+            - delete
+            env:
+            - name: CHARTPROBE_HOST
+              # TODO
+              value: "YOUR_DOMAIN"
+            - name: CHARTPROBE_PERIOD
+              value: "-168h"
+            resources:
+              limits:
+                cpu: "100m"
+                memory: "100Mi"
+              requests:
+                cpu: "100m"
+                memory: "100Mi"
+          restartPolicy: "OnFailure"
+---
+# append here if you have other cronjobs
+
+kind: CronJob
+apiVersion: batch/v1beta1
+metadata:
+  name: chartmuseum-cleaner-prod
+  # TODO
+  namespace: YOUR_NAMESPACE
+  labels:
+    app: ezbuy-chartprobe
+spec:
+# schedule 18:30pm every day
+# TODO set yourself cronjob format here
+  schedule: "30 18 * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: ezbuy-chartprobe
+        spec:
+          containers:
+          - name: chartprobe-for-prod
+            image: ghcr.io/ezbuy/chartprobe:latest
+            command:
+            - /app/chartprobe/chartprobe
+            - delete
+            env:
+            - name: CHARTPROBE_HOST
+              # TODO
+              value: "YOUR_DOMAIN"
+            - name: CHARTPROBE_PERIOD
+              value: "-168h"
+            resources:
+              limits:
+                cpu: "100m"
+                memory: "100Mi"
+              requests:
+                cpu: "100m"
+                memory: "100Mi"
+          restartPolicy: "OnFailure"
